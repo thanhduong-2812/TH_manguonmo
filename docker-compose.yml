@@ -1,15 +1,5 @@
 services:
-  db:
-    image: mysql:8.0
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: shop_db
-    volumes:
-      - ./data.sql:/docker-entrypoint-initdb.d/data.sql
-
-  web-hoa:
+  shop-hoa:
     build: .
     ports:
-      - "8081:80" # Chạy cổng 8081 để không trùng với Project 2 (8082)
-    depends_on:
-      - db
+      - "8081:80"
