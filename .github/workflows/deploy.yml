@@ -1,22 +1,41 @@
-name: Deploy HTML to Somee
+name: CI/CD Somee Demo
 
 on:
   push:
     branches: [ "main" ]
 
 jobs:
-  deploy:
+  # Giai đoạn 1: CI (Kiểm tra code)
+  test-code:
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Giả lập kiểm tra lỗi (Unit Test)
+        run: |
+          echo "Đang quét lỗi file index.html..."
+          if [ -f "index.html" ]; then
+            echo "Tìm thấy file index.html. Test OK!"
+          else
+            echo "Lỗi: Không tìm thấy file index.html!"
+            exit 1 # Lệnh này sẽ làm pipeline báo lỗi đỏ nếu thiếu file
+          fi
 
+  # Giai đoạn 2: CD (Triển khai lên Somee)
+  deploy:
+    needs: test-code  # Quan trọng: Chỉ chạy khi test-code thành công
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Deploy via FTP
+      - name: Deploy via FTP to Somee
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./         # bắt buộc có dấu "/"
-          server-dir: /www.duong.somee.com/
+          # Lưu ý phần server-dir bên dưới
+          server-dir: /www.duong.somee.com/ 
+          # local-dir mặc định là ./ nên có thể bỏ qua nếu muốn
