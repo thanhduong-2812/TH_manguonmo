@@ -1,5 +1,24 @@
 services:
-  shop-hoa:
-    build: .
+  # Cấu hình Database MySQL 5.7
+  db:
+    image: mysql:5.7
+    container_name: mysql_server
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: shop_db
     ports:
-      - "8081:80"
+      - "3310:3306" # Chạy cổng 3310 như bạn yêu cầu
+    volumes:
+      - ./data.sql:/docker-entrypoint-initdb.d/data.sql
+    restart: always
+
+  # Cấu hình Web chạy Apache & PHP 5.6
+  web-phone:
+    build: .
+    container_name: php_apache_server
+    ports:
+      - "8088:80" # Chạy cổng 8088 như bạn yêu cầu
+    depends_on:
+      - db
+    environment:
+      DOCKER_RUNNING: "true"
